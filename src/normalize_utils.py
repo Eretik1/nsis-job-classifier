@@ -217,7 +217,6 @@ def print_analysis(results: dict) -> None:
     print(f"  Слов только из заглавных букв:   {results['all_upper_alpha']}  ({results['freq_upper']:.2%})")
 
 def get_unique_words_ending_with_dot(df: pd.DataFrame, column_name: str) -> list:
-
     if not isinstance(df, pd.DataFrame):
         raise TypeError("df должен быть pandas.DataFrame")
     if column_name not in df.columns:
@@ -225,17 +224,23 @@ def get_unique_words_ending_with_dot(df: pd.DataFrame, column_name: str) -> list
 
     series = df[column_name].fillna('').astype(str)
     
-    result = []
-    seen_words = set()
+    all_words = []
+    first_occurrence = {}
     
     for text in series:
-        words = text.split()
-        for word in words:
+        for word in text.split():
             if word.endswith('.'):
-                if word not in seen_words:
-                    seen_words.add(word)
-                    result.append((text, word))
+                normalized = word.rstrip('.').lower()
+                all_words.append(normalized)
+                if normalized not in first_occurrence:
+                    first_occurrence[normalized] = text
     
+    from collections import Counter
+    word_counts = Counter(all_words)
+    
+    sorted_words = sorted(word_counts.keys(), key=lambda w: word_counts[w], reverse=True)
+    
+    result = [(first_occurrence[w], w) for w in sorted_words]
     return result
 
 def print_list_elements(lst: list) -> None:
@@ -523,3 +528,24 @@ def get_normalized_jobs(
     df = df.drop_duplicates(subset=['normalized_title'])
     
     return df
+
+def apply_db_rules(text, abbreviations, stop_phrases):
+
+    if not isinstance(text, str):
+        return text
+
+    for sp in stop_phrases:
+        if sp.pattern_type == 'literal':
+            text = text.replace(sp.phrase, '')
+        elif sp.pattern_type == 'regex':
+            try:
+                text = re.sub(sp.phrase, '', text, flags=re.IGNORECASE)
+            except:
+                pass
+
+    for abbr in abbreviations:
+        pattern = r'\b' + re.escape(abbr.abbreviation) + r'(\.?)(?=\s|$)'
+        text = re.sub(pattern, lambda m: abbr.expansion + ('' if m.group(1) else ''), text, flags=re.IGNORECASE)
+
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text

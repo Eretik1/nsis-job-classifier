@@ -38,7 +38,7 @@ print(f"   Подключено к {DB_NAME} на {DB_HOST}:{DB_PORT}")
 
 print("\n2. Загрузка и первичная обработка данных...")
 
-DATA_PATH = os.getenv("DATA_PATH", "data")
+DATA_PATH = os.getenv("DATA_PATH")
 df = nu.get_data(DATA_PATH)
 print(f"   Загружено {len(df)} записей из файлов")
 
