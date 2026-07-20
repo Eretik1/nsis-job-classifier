@@ -112,10 +112,11 @@ def analyze_text_column(df: pd.DataFrame, column_name: str) -> dict:
     max_avg_word_len = np.max(avg_word_lengths) if avg_word_lengths else 0.0
     min_avg_word_len = np.min(avg_word_lengths) if avg_word_lengths else 0.0
 
+    # Изменённый блок подсчёта non_russian_chars – пробелы игнорируются
     non_russian_chars = 0
     for text in series:
         for ch in text:
-            if not is_russian_char(ch):
+            if not ch.isspace() and not is_russian_char(ch):
                 non_russian_chars += 1
 
     short_words = 0
@@ -241,6 +242,33 @@ def get_unique_words_ending_with_dot(df: pd.DataFrame, column_name: str) -> list
     sorted_words = sorted(word_counts.keys(), key=lambda w: word_counts[w], reverse=True)
     
     result = [(first_occurrence[w], w) for w in sorted_words]
+    return result
+
+def get_upper_words_stats(df: pd.DataFrame, column_name: str) -> list:
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("df должен быть pandas.DataFrame")
+    if column_name not in df.columns:
+        raise ValueError(f"Столбец '{column_name}' не найден в DataFrame")
+
+    series = df[column_name].fillna('').astype(str)
+
+    all_words = []
+    first_occurrence = {}
+
+    for text in series:
+        for word in text.split():
+            if word.isalpha() and word.isupper():
+                normalized = word.lower()
+                all_words.append(normalized)
+                if normalized not in first_occurrence:
+                    first_occurrence[normalized] = text
+
+    from collections import Counter
+    word_counts = Counter(all_words)
+
+    sorted_words = sorted(word_counts.keys(), key=lambda w: word_counts[w], reverse=True)
+
+    result = [(first_occurrence[w], w, word_counts[w]) for w in sorted_words]
     return result
 
 def print_list_elements(lst: list) -> None:
@@ -387,7 +415,6 @@ def lemmatize(text: str) -> str:
         return text
     
     try:
-        import pymorphy3
         morph = pymorphy3.MorphAnalyzer()
         words = text.split()
         lemmatized = []
@@ -549,3 +576,107 @@ def apply_db_rules(text, abbreviations, stop_phrases):
 
     text = re.sub(r'\s+', ' ', text).strip()
     return text
+
+def get_upper_dot_words_stats(df, column_name):
+    if column_name not in df.columns:
+        raise ValueError(f"Столбец '{column_name}' не найден")
+
+    all_words = []
+    first_occurrence = {}
+    pattern = re.compile(r'\b\w+\.')
+
+    for value in df[column_name]:
+        if not isinstance(value, str):
+            continue
+        matches = pattern.findall(value)
+        for match in matches:
+            word = match[:-1].lower()
+            all_words.append(word)
+            if word not in first_occurrence:
+                first_occurrence[word] = value
+
+    word_counts = Counter(all_words)
+
+    result = [
+        [first_occurrence[word], word, word_counts[word]]
+        for word in first_occurrence.keys()
+    ]
+    result.sort(key=lambda x: x[2], reverse=True)
+    return result
+
+def get_upper_alpha_words_stats(df, column_name):
+    if column_name not in df.columns:
+        raise ValueError(f"Столбец '{column_name}' не найден")
+
+    all_words = []
+    first_occurrence = {}
+
+    for value in df[column_name]:
+        if not isinstance(value, str):
+            continue
+        for word in value.split():
+            if word.isalpha() and word.isupper():
+                normalized = word.lower()
+                all_words.append(normalized)
+                if normalized not in first_occurrence:
+                    first_occurrence[normalized] = value
+
+    word_counts = Counter(all_words)
+
+    result = [
+        [first_occurrence[word], word, word_counts[word]]
+        for word in first_occurrence.keys()
+    ]
+    result.sort(key=lambda x: x[2], reverse=True)
+    return result
+
+def remove_short_upper_words(text: str) -> str:
+    if not isinstance(text, str):
+        return text
+    words = text.split()
+    filtered = [word for word in words if not (word.isalpha() and word.isupper() and len(word) <= 4)]
+    return ' '.join(filtered)
+
+def remove_empty_and_duplicates(df, column_name):
+    if column_name not in df.columns:
+        raise ValueError(f"Столбец '{column_name}' не найден")
+    mask = df[column_name].notna()
+    if df[column_name].dtype == object:
+        mask &= df[column_name].astype(str).str.strip() != ""
+    filtered = df[mask]
+    filtered = filtered.drop_duplicates(subset=[column_name], keep=False)
+    return filtered
+
+def step_4(text):
+    if not isinstance(text, str):
+        return ''
+    
+    text = re.sub(r'[^а-яА-ЯёЁ\s]', ' ', text)
+    
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
+
+import math
+
+def truncate_and_filter_words(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+    if column_name not in df.columns:
+        raise ValueError(f"Столбец '{column_name}' не найден")
+    stats = analyze_text_column(df, column_name)
+    ceil_len = math.ceil(stats['mean_str_len'])
+    ceil_word_cnt = math.ceil(stats['mean_word_count'])
+    new_df = df.copy()
+    def process(text):
+        if not isinstance(text, str):
+            return ''
+        words = text.split()
+        filtered = [w for w in words if len(w) > 3]
+        while filtered:
+            current_len = sum(len(w) for w in filtered) + max(0, len(filtered) - 1)
+            if len(filtered) <= ceil_word_cnt and current_len <= ceil_len:
+                break
+            filtered.pop()
+        return ' '.join(filtered)
+    new_df[column_name] = new_df[column_name].fillna('').astype(str).apply(process)
+    return new_df

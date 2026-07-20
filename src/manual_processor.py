@@ -57,7 +57,17 @@ combined_df['должность'] = combined_df['должность'].apply(lamb
 print("   Нормализация завершена")
 
 print("\n5. Ручная обработка терминов...")
-terms = nu.get_unique_words_ending_with_dot(combined_df, 'должность')
+print("Выберите тип анализа:")
+print("1 - Слова, оканчивающиеся на точку")
+print("2 - Слова, полностью состоящие из заглавных букв")
+choice = input("Введите номер (1 или 2): ").strip()
+
+if choice == "1":
+    terms = nu.get_unique_words_ending_with_dot(combined_df, 'должность')
+
+else:
+    terms = nu.get_upper_words_stats(combined_df, 'должность')
+
 print(f"   Найдено {len(terms)} уникальных терминов с точкой")
 
 if len(terms) == 0:

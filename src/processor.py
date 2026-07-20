@@ -33,35 +33,28 @@ DATA_PATH = os.getenv("DATA_PATH")
 df = nu.get_data(DATA_PATH)
 df['step_1'] = df['должность'].apply(nu.step_1)
 
-df['step_1'] = df['step_1'].apply(lambda x: nu.apply_db_rules(x, abbreviations, stop_phrases))
+df['step_2'] = df['step_1'].apply(lambda x: nu.apply_db_rules(x, abbreviations, stop_phrases))
 
-def get_upper_dot_words_stats(df, column_name):
-    if column_name not in df.columns:
-        raise ValueError(f"Столбец '{column_name}' не найден")
+df['step_3'] = df['step_2'].apply(nu.remove_short_upper_words)
 
-    all_words = []
-    first_occurrence = {}
-    pattern = re.compile(r'\b\w+\.')
+df['step_3'] = df['step_3'].apply(str.lower)
 
-    for value in df[column_name]:
-        if not isinstance(value, str):
-            continue
-        matches = pattern.findall(value)
-        for match in matches:
-            word = match[:-1].lower()
-            all_words.append(word)
-            if word not in first_occurrence:
-                first_occurrence[word] = value
+df['step_3'] = df['step_3'].apply(lambda x: nu.apply_db_rules(x, abbreviations, stop_phrases))
 
-    word_counts = Counter(all_words)
+df['step_4'] = df['step_3'].apply(nu.step_4)
 
-    result = [
-        [first_occurrence[word], word, word_counts[word]]
-        for word in first_occurrence.keys()
-    ]
-    result.sort(key=lambda x: x[2], reverse=True)
-    return result
+df = nu.truncate_and_filter_words(df, 'step_4')
 
-res = get_upper_dot_words_stats(df, 'step_1')
-print(len(res))
-nu.print_list_elements(res)
+df = nu.remove_empty_and_duplicates(df, 'step_4')
+
+df['step_5'] = df['step_4']
+
+df['step_5'] = df['step_5'].apply(nu.lemmatize)
+
+#res = nu.get_upper_dot_words_stats(df, 'step_1')
+#res = nu.get_upper_alpha_words_stats(df, 'step_3')
+#print(len(res))
+#nu.print_list_elements(res)
+
+res = nu.analyze_text_column(df, 'step_5')
+nu.print_analysis(res)
