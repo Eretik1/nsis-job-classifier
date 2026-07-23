@@ -644,7 +644,7 @@ def remove_empty_and_duplicates(df, column_name):
     if df[column_name].dtype == object:
         mask &= df[column_name].astype(str).str.strip() != ""
     filtered = df[mask]
-    filtered = filtered.drop_duplicates(subset=[column_name], keep=False)
+    filtered = filtered.drop_duplicates(subset=[column_name], keep='first')
     return filtered
 
 def step_4(text):

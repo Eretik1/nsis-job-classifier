@@ -29,10 +29,40 @@ print("\nПОСТРОЕНИЕ ЭТАЛОННОЙ НСИ")
 print("-" * 60)
 
 print("1. Загрузка нормализованных должностей...")
+print("Выберите какие записи использовать для построения эталона:")
+print("  1 - только обработанные LLM (рекомендуется)")
+print("  2 - только проверенные вручную (наиболее качественные)")
+print("  3 - все записи (включая алгоритмически обработанные)")
+print("  4 - только обработанные LLM и проверенные вручную")
+choice = input("Ваш выбор (1-4): ").strip()
+
+if choice == '1':
+    only_llm_processed = True
+    only_manual_verified = False
+    mode_desc = "только LLM"
+elif choice == '2':
+    only_llm_processed = False
+    only_manual_verified = True
+    mode_desc = "только проверенные вручную"
+elif choice == '3':
+    only_llm_processed = False
+    only_manual_verified = False
+    mode_desc = "все записи"
+elif choice == '4':
+    only_llm_processed = True
+    only_manual_verified = True
+    mode_desc = "LLM и проверенные вручную"
+else:
+    print("Неверный выбор, используется вариант 1 (только LLM)")
+    only_llm_processed = True
+    only_manual_verified = False
+    mode_desc = "только LLM (по умолчанию)"
+
+print(f"   Режим: {mode_desc}")
 df = nu.get_normalized_jobs(
     session=session,
-    only_manual_verified=False,
-    only_llm_processed=True,
+    only_manual_verified=only_manual_verified,
+    only_llm_processed=only_llm_processed,
     exclude_empty=True
 )
 print(f"   Загружено {len(df)} записей.")
@@ -91,7 +121,7 @@ print(f"   Время вычисления расстояний: {time.time() - 
 
 print("5. Кластеризация...")
 Z = linkage(dist_vector, method='average')
-num_clusters_desired = 100
+num_clusters_desired = 500
 clusters = fcluster(Z, t=num_clusters_desired, criterion='maxclust')
 num_clusters = len(set(clusters))
 print(f"   Получено {num_clusters} кластеров (желаемое {num_clusters_desired})")
