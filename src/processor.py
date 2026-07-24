@@ -45,8 +45,6 @@ df['step_4'] = df['step_3'].apply(nu.step_4)
 
 df = nu.truncate_and_filter_words(df, 'step_4')
 
-#df = nu.remove_empty_and_duplicates(df, 'step_4')
-
 df['step_5'] = df['step_4']
 
 print("Начало лемматизации...")
@@ -54,15 +52,7 @@ tqdm.pandas()
 
 df['step_5'] = df['step_5'].progress_apply(nu.lemmatize)
 
-#df = nu.remove_empty_and_duplicates(df, 'step_5')
-
-#res = nu.get_upper_dot_words_stats(df, 'step_1')
-#res = nu.get_upper_alpha_words_stats(df, 'step_3')
-#print(len(res))
-#nu.print_list_elements(res)
-
-#res = nu.analyze_text_column(df, 'step_5')
-#nu.print_analysis(res)
+df = nu.remove_empty_and_duplicates(df, 'step_5')
 
 print("\nЗагрузка данных в БД...")
 

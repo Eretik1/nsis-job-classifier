@@ -14,9 +14,6 @@ from models import ReferenceTitle, JobTitle, AbbreviationDict, StopPhrase
 
 load_dotenv()
 
-
-
-
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
@@ -27,9 +24,6 @@ engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
-
-
 print("Загрузка эталонов и правил...")
 reference_titles = session.query(ReferenceTitle).all()
 if not reference_titles:
@@ -39,7 +33,6 @@ if not reference_titles:
 ref_texts = [r.canonical_title for r in reference_titles]
 ref_ids = [r.id for r in reference_titles]
 print(f"Загружено {len(ref_texts)} эталонов.")
-
 
 abbreviations = session.query(AbbreviationDict).filter(
     AbbreviationDict.is_active == True
@@ -64,17 +57,15 @@ def apply_db_rules(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-
-
-
 def normalize_input(text):
 
     if not isinstance(text, str):
         return ''
     text = nu.step_1(text)
-    text = nu.clean_single(text)
     text = apply_db_rules(text)
-    text = nu.step_2(text)
+    text = text.lower()
+    text = apply_db_rules(text)
+    text = nu.step_4(text)
     text = nu.lemmatize(text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
@@ -123,7 +114,7 @@ print("Векторизатор обучен.")
 
 
 
-def classify(text, threshold=0.6):
+def classify(text, threshold=0.1):
 
     norm_text = normalize_input(text)
     if not norm_text:

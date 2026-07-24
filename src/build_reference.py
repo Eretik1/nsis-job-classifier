@@ -119,12 +119,22 @@ dist_vector = pdist(X_combined.toarray(), metric='cosine')
 print(f"   Время вычисления расстояний: {time.time() - start_time:.2f} сек.")
 
 
-print("5. Кластеризация...")
+print("5. Кластеризация (автоматический подбор порога)...")
 Z = linkage(dist_vector, method='average')
-num_clusters_desired = 500
-clusters = fcluster(Z, t=num_clusters_desired, criterion='maxclust')
+dists = Z[:, 2]
+sorted_dists = np.sort(dists)
+
+gaps = np.diff(sorted_dists)
+
+max_gap_idx = np.argmax(gaps)
+
+threshold = (sorted_dists[max_gap_idx] + sorted_dists[max_gap_idx + 1]) / 2
+
+clusters = fcluster(Z, t=threshold, criterion='distance')
 num_clusters = len(set(clusters))
-print(f"   Получено {num_clusters} кластеров (желаемое {num_clusters_desired})")
+
+print(f"   Автоматически выбран порог: {threshold:.4f}")
+print(f"   Получено {num_clusters} кластеров")
 
 
 print("6. Присвоение кластеров...")
