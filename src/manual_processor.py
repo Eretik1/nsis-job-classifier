@@ -48,9 +48,6 @@ print("\n4. Применение правил из БД...")
 print("   Проход 1: замена сокращений и удаление стоп-фраз...")
 combined_df['должность'] = combined_df['должность'].apply(lambda x: nu.apply_db_rules(x, abbreviations, stop_phrases))
 
-print("   Приведение к нижнему регистру...")
-combined_df['должность'] = combined_df['должность'].str.lower()
-
 print("   Проход 2: повторное применение правил...")
 combined_df['должность'] = combined_df['должность'].apply(lambda x: nu.apply_db_rules(x, abbreviations, stop_phrases))
 
