@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+sys.path.append(os.path.dirname(__file__))
+
 import normalize_utils as nu
 from models import ReferenceTitle, JobTitle, AbbreviationDict, StopPhrase
 
