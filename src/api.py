@@ -1,5 +1,12 @@
+import sys
 import os
+from pathlib import Path
 from typing import List, Optional
+
+# Добавляем корневую папку проекта в sys.path
+root_dir = Path(__file__).parent.parent  # папка practice
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
 
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -7,8 +14,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-from . import classify_job
-from .models import JobTitle, ReferenceTitle
+import classify_job
+from models import JobTitle, ReferenceTitle
 
 load_dotenv()
 
@@ -151,4 +158,4 @@ async def get_stats():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("src.api:app", host="0.0.0.0", port=8000, reload=True)

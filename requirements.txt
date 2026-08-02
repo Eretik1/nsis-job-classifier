@@ -9,3 +9,6 @@ scikit-learn==1.9.0
 scipy==1.18.0
 SQLAlchemy==2.0.51
 tqdm==4.68.4
+fastapi==0.129.0
+uvicorn==0.41.0
+pydantic==2.12.5
