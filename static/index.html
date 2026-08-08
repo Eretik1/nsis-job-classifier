@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Классификатор должностей</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Классификатор должностей</h1>
+    <p>Введите названия должностей (каждое с новой строки) и нажмите «Классифицировать».</p>
+
+    <div class="input-section">
+        <textarea id="jobInput" rows="5" placeholder="зам. гл. бухгалтера&#10;нач. упр.&#10;ведущий инженер"></textarea>
+        <div class="buttons">
+            <button id="classifyBtn">Классифицировать</button>
+            <button id="statsBtn">Статистика</button>
+            <button id="referenceBtn">Справочник</button>
+        </div>
+    </div>
+
+    <div id="results">
+        
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>

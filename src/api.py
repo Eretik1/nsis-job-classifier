@@ -70,7 +70,7 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/")
+#@app.get("/")
 async def root():
     return {
         "message": "API классификатора должностей",
@@ -155,6 +155,12 @@ async def get_stats():
         algorithm_processed=algo,
         manual_verified=manual
     )
+
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+app.mount("/", StaticFiles(directory="static", html=True), name="root")
 
 if __name__ == "__main__":
     import uvicorn

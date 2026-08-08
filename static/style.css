@@ -1,0 +1,145 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+h1 {
+    font-size: 28px;
+    color: #1a2634;
+    margin-bottom: 6px;
+}
+
+.input-section {
+    margin: 20px 0;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #dce1e8;
+    border-radius: 8px;
+    resize: vertical;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.buttons {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 10px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 500;
+}
+
+#classifyBtn {
+    background: #2563eb;
+    color: white;
+}
+#classifyBtn:hover {
+    background: #1d4ed8;
+}
+
+#statsBtn {
+    background: #16a34a;
+    color: white;
+}
+#statsBtn:hover {
+    background: #15803d;
+}
+
+#referenceBtn {
+    background: #7c3aed;
+    color: white;
+}
+#referenceBtn:hover {
+    background: #6d28d9;
+}
+
+#results {
+    margin-top: 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+th {
+    background: #f8fafc;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #dce1e8;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e9edf2;
+}
+
+.status-success {
+    color: #16a34a;
+    font-weight: 600;
+}
+.status-fail {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
+}
+.stat-card .number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e293b;
+}
+.stat-card .label {
+    font-size: 14px;
+    color: #64748b;
+}
+
+.reference-list {
+    max-height: 400px;
+    overflow-y: auto;
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 8px;
+}
+.reference-item {
+    padding: 6px 0;
+    border-bottom: 1px solid #e9edf2;
+    font-size: 14px;
+}
